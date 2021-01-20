@@ -54,8 +54,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         int nameLen = user.getName().length();
         int passwordLen = user.getPassword().length();
-        if (nameLen < 2 || nameLen > 18 || passwordLen != 32) {
+        if (nameLen < 2 || nameLen > 10 || passwordLen != 32) {
             return RespBean.error("用户信息不合法！请按规定填写！");
+        }
+
+        // 查询是否已有用户
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("name", user.getName());
+
+        List<User> list = userMapper.selectList(queryWrapper);
+        if (list.size() >= 1) {
+            return RespBean.error("用户已存在！请更改昵称！");
         }
 
         // 第二次MD5
