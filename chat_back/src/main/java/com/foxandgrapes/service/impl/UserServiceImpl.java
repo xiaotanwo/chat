@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         // 登录成功
-        request.setAttribute("user", user);
+        request.getSession().setAttribute("user", user);
         return RespBean.success("登录成功！", null);
     }
 
@@ -76,7 +77,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (ret != 1) return RespBean.error("注册失败！");
 
         // 注册成功
-        request.setAttribute("user", user);
+        request.getSession().setAttribute("user", user);
         return RespBean.success("注册成功！", null);
+    }
+
+    @Override
+    public RespBean logout(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (null == user) return RespBean.error("未登录，无法退出！");
+
+        session.removeAttribute("user");
+        return RespBean.success("退出成功！", null);
     }
 }

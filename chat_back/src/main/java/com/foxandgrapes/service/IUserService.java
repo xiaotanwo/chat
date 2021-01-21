@@ -31,4 +31,10 @@ public interface IUserService extends IService<User> {
      * @return
      */
     RespBean register(User user, HttpServletRequest request);
+
+    /**
+     * 注销
+     * @return
+     */
+    RespBean logout(HttpServletRequest request);
 }
