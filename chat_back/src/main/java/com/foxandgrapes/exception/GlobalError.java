@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * 全局异常错误类
+ */
 @RestController
-public class GlobalException implements ErrorController {
+public class GlobalError implements ErrorController {
 
     @RequestMapping("/error")
     public RespBean handleError(HttpServletRequest request) {
