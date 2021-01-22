@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
  * @since 2021-01-22
  */
 @Controller
-@RequestMapping("/friendApply")
-public class FriendApplyController {
+@RequestMapping("/groupUser")
+public class GroupUserController {
 
 }
