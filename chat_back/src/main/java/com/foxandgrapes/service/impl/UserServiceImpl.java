@@ -31,15 +31,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public RespBean login(User user, HttpServletRequest request) {
         if (user == null) return RespBean.error("用户信息不能为空！");
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", user.getName());
 
-        List<User> list = userMapper.selectList(queryWrapper);
-        if (list.size() != 1) {
+        User querryUser = getUserByName(user.getName());
+        if (querryUser == null) {
             return RespBean.error("用户不存在！请检查昵是否有误！");
         }
 
-        User querryUser = list.get(0);
         if (!querryUser.getPassword().equals(MD5Util.fromPassToDBPass(user.getPassword(), querryUser.getSalt()))) {
             return RespBean.error("密码错误！请检查密码是否有误！");
         }
@@ -60,11 +57,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
 
         // 查询是否已有用户
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", user.getName());
-
-        List<User> list = userMapper.selectList(queryWrapper);
-        if (list.size() >= 1) {
+        User querryUser = getUserByName(user.getName());
+        if (querryUser == null) {
             return RespBean.error("用户已存在！请更改昵称！");
         }
 
@@ -85,9 +79,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public RespBean logout(HttpServletRequest request) {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-        if (null == user) return RespBean.error("未登录，无法退出！");
+        if (user == null) return RespBean.error("未登录，无法退出！");
 
         session.removeAttribute("user");
         return RespBean.success("退出成功！", null);
+    }
+
+    @Override
+    public User getUserByName(String name) {
+        if (name == null || name.isEmpty()) return null;
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("name", name);
+        List<User> userList = userMapper.selectList(queryWrapper);
+        if (userList.size() != 1) {
+            return null;
+        }
+
+        return userList.get(0);
     }
 }

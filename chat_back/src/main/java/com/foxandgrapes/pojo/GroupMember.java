@@ -22,8 +22,8 @@ import java.io.Serializable;
 @ToString
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@TableName("t_group_user")
-public class GroupUser implements Serializable {
+@TableName("t_group_member")
+public class GroupMember implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,7 +41,7 @@ public class GroupUser implements Serializable {
     /**
      * 用户
      */
-    private String userName;
+    private String memberName;
 
 
 }

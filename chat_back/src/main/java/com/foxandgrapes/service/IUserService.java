@@ -37,4 +37,11 @@ public interface IUserService extends IService<User> {
      * @return
      */
     RespBean logout(HttpServletRequest request);
+
+    /**
+     * 获取用户
+     * @param applyName
+     * @return
+     */
+    User getUserByName(String applyName);
 }

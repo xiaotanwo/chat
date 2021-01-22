@@ -2,8 +2,7 @@ package com.foxandgrapes.controller;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
@@ -13,8 +12,8 @@ import org.springframework.stereotype.Controller;
  * @author tsk
  * @since 2021-01-22
  */
-@Controller
-@RequestMapping("/groupUser")
-public class GroupUserController {
+@RestController
+@RequestMapping("/groupMember")
+public class GroupMemberController {
 
 }

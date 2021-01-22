@@ -46,14 +46,14 @@ CREATE TABLE `t_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 # 群聊用户表
-CREATE TABLE `t_group_user` (
+CREATE TABLE `t_group_member` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID，自增',
   `group_name` varchar(32) NOT NULL COMMENT '群聊名称',
-  `user_name` varchar(32) NOT NULL COMMENT '用户',
+  `member_name` varchar(32) NOT NULL COMMENT '用户',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 # 添加索引
-CREATE INDEX indexGroupName ON t_group_user(group_name(32))
-CREATE INDEX indexUserName ON t_group_user(user_name(32))
+CREATE INDEX indexGroupName ON t_group_member(group_name(32))
+CREATE INDEX indexMemberName ON t_group_member(member_name(32))
 
 ```

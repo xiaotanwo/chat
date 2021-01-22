@@ -1,6 +1,6 @@
 package com.foxandgrapes.service;
 
-import com.foxandgrapes.pojo.GroupUser;
+import com.foxandgrapes.pojo.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author tsk
  * @since 2021-01-22
  */
-public interface IGroupUserService extends IService<GroupUser> {
+public interface IGroupMemberService extends IService<GroupMember> {
 
 }
