@@ -14,7 +14,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author tsk
- * @since 2021-01-19
+ * @since 2021-01-22
  */
 @Data
 @NoArgsConstructor
@@ -22,29 +22,26 @@ import java.io.Serializable;
 @ToString
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@TableName("t_user")
-public class User implements Serializable {
+@TableName("t_friend")
+public class Friend implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID，自增
+     * ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 用户昵称，唯一约束
+     * 用户
      */
     private String name;
 
     /**
-     * MD5(MD5(pass明文+固定salt)+salt)
+     * 用户好友
      */
-    private String password;
+    private String friend;
 
-    /**
-     * 随机盐值
-     */
-    private String salt;
+
 }
