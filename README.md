@@ -29,7 +29,7 @@ CREATE TABLE `t_friend_apply` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID，自增',
   `name` varchar(32) NOT NULL COMMENT '用户',
   `apply_name` varchar(32) NOT NULL COMMENT '申请的用户好友',
-  `state` char(1) DEFAULT NULL COMMENT '状态，null未处理，0接受，1拒绝',
+  `status` tinyint DEFAULT '0' COMMENT '好友申请状态，0未处理，1已接受，2已拒绝',
   `msg` varchar(50) DEFAULT NULL COMMENT '申请好友的信息',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

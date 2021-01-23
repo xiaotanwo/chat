@@ -44,9 +44,9 @@ public class FriendApply implements Serializable {
     private String applyName;
 
     /**
-     * 状态，null未处理，0接受，1拒绝
+     * 好友申请状态，0未处理，1已接受，2已拒绝
      */
-    private String state;
+    private Integer status;
 
     /**
      * 申请好友的信息

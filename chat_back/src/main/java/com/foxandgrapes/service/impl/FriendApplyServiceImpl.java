@@ -39,9 +39,8 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         if (friend == null) return RespBean.error("该好友不存在！");
 
         // 为了防止前端的参数有误进行的设值
-        friendApply.setId((long) 12); // 测试id有值的情况。
         friendApply.setName(user.getName());
-        friendApply.setState(null);
+        friendApply.setStatus(null);
 
         int ret = friendApplyMapper.insert(friendApply);
         if (ret != 1) {

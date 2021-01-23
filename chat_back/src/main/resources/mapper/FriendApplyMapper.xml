@@ -7,7 +7,7 @@
         <id column="id" property="id" />
         <result column="name" property="name" />
         <result column="apply_name" property="applyName" />
-        <result column="state" property="state" />
+        <result column="status" property="status" />
         <result column="msg" property="msg" />
     </resultMap>
 

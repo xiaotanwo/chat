@@ -6,6 +6,7 @@ import com.foxandgrapes.service.IFriendApplyService;
 import com.foxandgrapes.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,7 @@ public class FriendApplyController {
     private IFriendApplyService friendApplyService;
 
     @PostMapping("/add")
-    public RespBean add(FriendApply friendApply, HttpServletRequest request) {
+    public RespBean add(@RequestBody FriendApply friendApply, HttpServletRequest request) {
         return friendApplyService.add(friendApply, request);
     }
 }
