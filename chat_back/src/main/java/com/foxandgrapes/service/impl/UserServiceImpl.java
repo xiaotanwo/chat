@@ -58,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 查询是否已有用户
         User querryUser = getUserByName(user.getName());
-        if (querryUser == null) {
+        if (querryUser != null) {
             return RespBean.error("用户已存在！请更改昵称！");
         }
 

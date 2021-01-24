@@ -32,12 +32,12 @@ public class UserController {
         return userService.login(user, request);
     }
 
-    @RequestMapping("/register")
+    @PostMapping("/register")
     public RespBean register(@RequestBody User user, HttpServletRequest request) {
         return userService.register(user, request);
     }
 
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public RespBean logout(HttpServletRequest request) {
         return userService.logout(request);
     }
