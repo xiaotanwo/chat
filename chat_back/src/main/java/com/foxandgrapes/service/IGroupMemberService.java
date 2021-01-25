@@ -1,7 +1,11 @@
 package com.foxandgrapes.service;
 
-import com.foxandgrapes.pojo.GroupMember;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.foxandgrapes.pojo.Group;
+import com.foxandgrapes.pojo.GroupMember;
+import com.foxandgrapes.vo.RespBean;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -12,5 +16,29 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2021-01-22
  */
 public interface IGroupMemberService extends IService<GroupMember> {
+
+    /**
+     * 加入群聊
+     * @param group
+     * @param request
+     * @return
+     */
+    RespBean joinGroup(Group group, HttpServletRequest request);
+
+    /**
+     * 判断是否在群聊中
+     * @param groupName
+     * @param name
+     * @return
+     */
+    boolean inGroup(String groupName, String name);
+
+    /**
+     * 加入群聊
+     * @param groupName
+     * @param name
+     * @return
+     */
+    int joinGroup(String groupName, String name);
 
 }
