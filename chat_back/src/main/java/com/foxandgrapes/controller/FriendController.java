@@ -4,6 +4,7 @@ package com.foxandgrapes.controller;
 import com.foxandgrapes.service.IFriendService;
 import com.foxandgrapes.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,5 +28,10 @@ public class FriendController {
     @RequestMapping("/getFriends")
     public RespBean getFriends(HttpServletRequest request) {
         return friendService.getFriends(request);
+    }
+
+    @RequestMapping("/delete/{friendName}")
+    public RespBean delete(@PathVariable("friendName") String friendName, HttpServletRequest request) {
+        return friendService.delete(friendName, request);
     }
 }

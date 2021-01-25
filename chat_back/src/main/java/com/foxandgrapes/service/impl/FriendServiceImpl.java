@@ -9,6 +9,7 @@ import com.foxandgrapes.service.IFriendService;
 import com.foxandgrapes.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -56,6 +57,26 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
             return false;
         }
         return true;
+    }
+
+    @Transactional
+    @Override
+    public RespBean delete(String friendName, HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) return RespBean.error("非法访问，请登录！");
+
+        if (friendName == null) return RespBean.error("好友名不能为空！");
+
+        System.out.println(user.getName() + " " + friendName);
+        if (!isFriend(user.getName(), friendName)) {
+            return RespBean.error("该用户不是您好友！");
+        }
+
+        // 双向删除好友关系
+        friendMapper.delete(new QueryWrapper<Friend>().eq("name", user.getName()).eq("friend", friendName));
+        friendMapper.delete(new QueryWrapper<Friend>().eq("name", friendName).eq("friend", user.getName()));
+
+        return RespBean.success("好友删除成功！", null);
     }
 
 }

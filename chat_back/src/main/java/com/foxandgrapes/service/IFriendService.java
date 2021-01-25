@@ -38,4 +38,12 @@ public interface IFriendService extends IService<Friend> {
      * @return
      */
     boolean isFriend(String name, String friendName);
+
+    /**
+     * 删除好友
+     * @param friendName
+     * @param request
+     * @return
+     */
+    RespBean delete(String friendName, HttpServletRequest request);
 }
