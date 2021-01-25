@@ -18,12 +18,11 @@ public interface IFriendApplyService extends IService<FriendApply> {
 
     /**
      * 添加好友
-     * @param applyName
-     * @param msg
+     * @param friendApply
      * @param request
      * @return
      */
-    RespBean add(String applyName, String msg, HttpServletRequest request);
+    RespBean add(FriendApply friendApply, HttpServletRequest request);
 
     /**
      * 查看好友申请

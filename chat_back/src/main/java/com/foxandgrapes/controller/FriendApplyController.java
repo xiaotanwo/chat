@@ -1,10 +1,12 @@
 package com.foxandgrapes.controller;
 
 
+import com.foxandgrapes.pojo.FriendApply;
 import com.foxandgrapes.service.IFriendApplyService;
 import com.foxandgrapes.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,11 +27,10 @@ public class FriendApplyController {
     @Autowired
     private IFriendApplyService friendApplyService;
 
-    @RequestMapping("/add/{applyName}/{msg}")
-    public RespBean add(@PathVariable("applyName") String applyName,
-                        @PathVariable("msg") String msg,
+    @RequestMapping("/add")
+    public RespBean add(@RequestBody FriendApply friendApply,
                         HttpServletRequest request) {
-        return friendApplyService.add(applyName, msg, request);
+        return friendApplyService.add(friendApply, request);
     }
 
     @RequestMapping("/search")

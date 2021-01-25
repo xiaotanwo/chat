@@ -35,13 +35,17 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
     private FriendApplyMapper friendApplyMapper;
 
     @Override
-    public RespBean add(String applyName, String msg, HttpServletRequest request) {
+    public RespBean add(FriendApply friendApply, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) return RespBean.error("非法访问！请登录！");
 
+        if (friendApply == null) return RespBean.error("好友申请不能为空！");
+        // 申请的好友名称
+        String applyName = friendApply.getApplyName();
         if (applyName == null) return RespBean.error("好友名称不能为空！");
         if (applyName.equals(user.getName())) return RespBean.error("不能添加自己为好友！");
 
+        // 验证好友是否存在
         User friend = userService.getUserByName(applyName);
         if (friend == null) return RespBean.error("该好友不存在！");
 
@@ -58,10 +62,10 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
             return RespBean.error("不能对同一好友进行重复申请！");
         }
 
-        FriendApply friendApply = new FriendApply();
+        // 防止前端传来的参数有误
         friendApply.setName(user.getName());
-        friendApply.setApplyName(applyName);
-        friendApply.setMsg(msg);
+        friendApply.setStatus(null);
+
         // 进行好友申请
         int ret = friendApplyMapper.insert(friendApply);
         if (ret != 1) {
@@ -94,7 +98,7 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
 
         // 验证是否存在
         QueryWrapper<FriendApply> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", name).eq("apply_name", user.getName());
+        queryWrapper.eq("name", name).eq("apply_name", user.getName()).eq("status", 0);
         List<FriendApply> friendApplyList = friendApplyMapper.selectList(queryWrapper);
         if (friendApplyList == null || friendApplyList.isEmpty()) {
             return RespBean.error("该好友申请不存在！");
@@ -103,20 +107,18 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         // 同意
         FriendApply respondFriendApply = friendApplyList.get(0);
         respondFriendApply.setStatus(1);
-
-        // 事务
         int ret = friendApplyMapper.updateById(respondFriendApply);
         if (ret != 1) {
             return RespBean.error("好友申请同意失败！");
         }
-        ret = friendService.insertFriend(user.getName(), name);
-        if (ret != 1) {
-            return RespBean.error("好友申请同意失败！");
+
+        // 验证是否已是好友
+        if (friendService.isFriend(user.getName(), name)) {
+            return RespBean.success("已是好友！", null);
         }
-        ret = friendService.insertFriend(name, user.getName());
-        if (ret != 1) {
-            return RespBean.error("好友申请同意失败！");
-        }
+
+        friendService.insertFriend(user.getName(), name);
+        friendService.insertFriend(name, user.getName());
 
         return RespBean.success("好友申请同意成功！", null);
     }
