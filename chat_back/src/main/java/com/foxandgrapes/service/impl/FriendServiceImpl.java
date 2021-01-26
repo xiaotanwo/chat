@@ -1,6 +1,5 @@
 package com.foxandgrapes.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.FriendMapper;
 import com.foxandgrapes.pojo.Friend;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * <p>
@@ -30,53 +28,56 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public RespBean getFriends(HttpServletRequest request) {
+        // 登录验证
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) return RespBean.error("非法访问，请登录！");
 
-        QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", user.getName());
-        List<Friend> friendList = friendMapper.selectList(queryWrapper);
-
-        return RespBean.success("查询好友成功！", friendList);
-    }
-
-    @Override
-    public int insertFriend(String name, String friendName) {
-        Friend friend = new Friend();
-        friend.setName(name);
-        friend.setFriend(friendName);
-        return friendMapper.insert(friend);
-    }
-
-    @Override
-    public boolean isFriend(String name, String friendName) {
-        QueryWrapper<Friend> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name", name).eq("friend", friendName);
-        List<Friend> friendList = friendMapper.selectList(queryWrapper);
-        if (friendList == null || friendList.size() == 0) {
-            return false;
-        }
-        return true;
+        // 查询好友列表
+        return RespBean.success("查询好友成功！", friendMapper.getFriendList(user.getName()));
     }
 
     @Transactional
     @Override
     public RespBean delete(String friendName, HttpServletRequest request) {
+        // 登录验证
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) return RespBean.error("非法访问，请登录！");
 
+        // 参数验证
         if (friendName == null) return RespBean.error("好友名不能为空！");
 
-        System.out.println(user.getName() + " " + friendName);
-        if (!isFriend(user.getName(), friendName)) {
-            return RespBean.error("该用户不是您好友！");
-        }
+        // 判断是否是朋友
+        if (!isFriend(user.getName(), friendName)) return RespBean.error("该用户不是您好友！");
 
-        // 双向删除好友关系
-        friendMapper.delete(new QueryWrapper<Friend>().eq("name", user.getName()).eq("friend", friendName));
-        friendMapper.delete(new QueryWrapper<Friend>().eq("name", friendName).eq("friend", user.getName()));
+        // 双向删除好友关系，事务
+        deleteFriend(user.getName(), friendName);
+        deleteFriend(friendName, user.getName());
 
         return RespBean.success("好友删除成功！", null);
+    }
+
+    // 删除好友
+    private Boolean deleteFriend(String name, String friend) {
+        Integer ret = friendMapper.deleteFriend(name, friend);
+        return ret != null && ret == 1;
+    }
+
+    // 判断是否是好友
+    @Override
+    public boolean isFriend(String name, String friend) {
+        Integer ret = friendMapper.isFriend(name, friend);
+        return ret != null && ret == 1;
+    }
+
+    // 添加好友
+    @Override
+    public boolean insertFriend(String name, String friendName) {
+        // 好友信息
+        Friend friend = new Friend();
+        friend.setName(name);
+        friend.setFriend(friendName);
+        Integer ret = friendMapper.insert(friend);
+        return ret != null && ret == 1;
     }
 
 }

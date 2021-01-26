@@ -9,4 +9,12 @@
         <result column="member_name" property="memberName" />
     </resultMap>
 
+    <select id="getGroups" resultType="java.lang.String" parameterType="java.lang.String">
+        select group_name from t_group_member where member_name = #{name}
+    </select>
+
+    <select id="inGroup" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select 1 from t_group_member where group_name = #{groupName} and member_name = #{name} limit 1
+    </select>
+
 </mapper>

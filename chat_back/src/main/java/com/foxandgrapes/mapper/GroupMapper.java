@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface GroupMapper extends BaseMapper<Group> {
 
+    // 通过群名获取群聊
+    Group getGroupByName(String name);
 }

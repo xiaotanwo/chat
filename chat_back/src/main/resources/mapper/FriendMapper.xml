@@ -9,4 +9,16 @@
         <result column="friend" property="friend" />
     </resultMap>
 
+    <select id="getFriendList" resultType="com.foxandgrapes.vo.FriendVo" parameterType="java.lang.String">
+        select friend from t_friend where name = #{name}
+    </select>
+
+    <delete id="deleteFriend" parameterType="java.lang.String">
+        delete from t_friend where name = #{name} and friend = #{friend} limit 1
+    </delete>
+
+    <select id="isFriend" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select 1 from t_friend where name = #{name} and friend = #{friend} limit 1
+    </select>
+
 </mapper>

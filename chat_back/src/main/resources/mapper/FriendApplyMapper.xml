@@ -11,4 +11,16 @@
         <result column="msg" property="msg" />
     </resultMap>
 
+    <select id="applyed" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select 1 from t_friend_apply where name = #{name} and apply_name = #{applyName} limit 1
+    </select>
+
+    <select id="getFriendApplyListWithNotRespond" resultType="com.foxandgrapes.vo.FriendApplyVo" parameterType="java.lang.String">
+        select name, msg from t_friend_apply where apply_name = #{name} and status = 0
+    </select>
+
+    <select id="getFriendApplyWithNotRespond" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select id, name, apply_name, status from t_friend_apply where name = #{name} and apply_name = #{applyName} and status = 0 limit 1
+    </select>
+
 </mapper>

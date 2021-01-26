@@ -23,22 +23,6 @@ public interface IFriendService extends IService<Friend> {
      */
     RespBean getFriends(HttpServletRequest request);
 
-
-    /**
-     * 插入好友关系
-     * @param name
-     * @param friendName
-     * @return
-     */
-    int insertFriend(String name, String friendName);
-
-    /**
-     * 查看是否为好友
-     * @param name
-     * @return
-     */
-    boolean isFriend(String name, String friendName);
-
     /**
      * 删除好友
      * @param friendName
@@ -46,4 +30,19 @@ public interface IFriendService extends IService<Friend> {
      * @return
      */
     RespBean delete(String friendName, HttpServletRequest request);
+
+    /**
+     * 插入好友关系
+     * @param name
+     * @param friendName
+     * @return
+     */
+    boolean insertFriend(String name, String friendName);
+
+    /**
+     * 查看是否为好友
+     * @param name
+     * @return
+     */
+    boolean isFriend(String name, String friendName);
 }

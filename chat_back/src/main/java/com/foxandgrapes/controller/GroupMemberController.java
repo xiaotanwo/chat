@@ -28,4 +28,9 @@ public class GroupMemberController {
     public RespBean joinGroup(@RequestBody Group group, HttpServletRequest request) {
         return groupMemberService.joinGroup(group, request);
     }
+
+    @RequestMapping("/getGroups")
+    public RespBean getGroups(HttpServletRequest request) {
+        return groupMemberService.getGroups(request);
+    }
 }

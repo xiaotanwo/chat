@@ -44,4 +44,11 @@ public interface IUserService extends IService<User> {
      * @return
      */
     User getUserByName(String applyName);
+
+    /**
+     * 用户验证
+     * @param name
+     * @return
+     */
+    boolean isUser(String name);
 }

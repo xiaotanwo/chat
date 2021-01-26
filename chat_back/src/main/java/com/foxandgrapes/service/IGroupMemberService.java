@@ -26,19 +26,25 @@ public interface IGroupMemberService extends IService<GroupMember> {
     RespBean joinGroup(Group group, HttpServletRequest request);
 
     /**
-     * 判断是否在群聊中
-     * @param groupName
-     * @param name
+     * 获取用户所有的群聊
+     * @param request
      * @return
      */
-    boolean inGroup(String groupName, String name);
+    RespBean getGroups(HttpServletRequest request);
+
+    /**
+     * 判断是否在群聊中
+     * @param groupName
+     * @param memberName
+     * @return
+     */
+    boolean inGroup(String groupName, String memberName);
 
     /**
      * 加入群聊
      * @param groupName
-     * @param name
+     * @param memberName
      * @return
      */
-    int joinGroup(String groupName, String name);
-
+    boolean joinGroup(String groupName, String memberName);
 }

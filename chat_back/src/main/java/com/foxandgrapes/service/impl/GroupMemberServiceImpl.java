@@ -1,6 +1,5 @@
 package com.foxandgrapes.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.GroupMemberMapper;
 import com.foxandgrapes.pojo.Group;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * <p>
@@ -33,6 +31,7 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
     @Override
     public RespBean joinGroup(Group group, HttpServletRequest request) {
+        // 登录验证
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) return RespBean.error("非法访问，请登录！");
 
@@ -47,46 +46,45 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
         // 获取群聊
         Group joinGroup = groupService.getGroupByName(group.getName());
-        if (joinGroup == null) {
-            return RespBean.error("该群聊不存在!");
-        }
+        if (joinGroup == null) return RespBean.error("该群聊不存在!");
 
         // 判断是否已在此群聊中
-        if (inGroup(group.getName(), user.getName())) {
-            return RespBean.error("您已在此群聊中，不能重新加入！");
-        }
+        if (inGroup(group.getName(), user.getName())) return RespBean.error("您已在此群聊中，不能重新加入！");
 
         // 判断是否密码正确
-        if (!group.getPassword().equals(joinGroup.getPassword())) {
-            return RespBean.error("密码不正确！");
-        }
+        if (!group.getPassword().equals(joinGroup.getPassword())) return RespBean.error("密码不正确！");
 
         // 加入群聊
-        GroupMember groupMember = new GroupMember();
-        groupMember.setGroupName(group.getName());
-        groupMember.setMemberName(user.getName());
-        int ret = groupMemberMapper.insert(groupMember);
-        if (ret != 1) {
-            return RespBean.error("加入群聊失败！");
-        }
+        if (!joinGroup(group.getName(), user.getName())) return RespBean.error("加入群聊失败！");
 
         return RespBean.success("加入群聊成功！", null);
     }
 
     @Override
-    public boolean inGroup(String groupName, String name) {
-        List<GroupMember> groupMemberList = groupMemberMapper.selectList(new QueryWrapper<GroupMember>().eq("group_name", groupName).eq("member_name", name));
-        if (groupMemberList == null || groupMemberList.size() == 0) {
-            return false;
-        }
-        return true;
+    public RespBean getGroups(HttpServletRequest request) {
+        // 登录验证
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) return RespBean.error("非法访问，请登录！");
+
+        return RespBean.success("获取群聊信息成功！", groupMemberMapper.getGroups(user.getName()));
     }
 
+    // 判断是否在群聊中
     @Override
-    public int joinGroup(String groupName, String name) {
+    public boolean inGroup(String groupName, String memberName) {
+        Integer ret = groupMemberMapper.inGroup(groupName, memberName);
+        return ret != null && ret == 1;
+    }
+
+    // 加入群聊
+    @Override
+    public boolean joinGroup(String groupName, String memberName) {
+        // 群成员信息
         GroupMember groupMember = new GroupMember();
         groupMember.setGroupName(groupName);
-        groupMember.setMemberName(name);
-        return groupMemberMapper.insert(groupMember);
+        groupMember.setMemberName(memberName);
+
+        Integer ret = groupMemberMapper.insert(groupMember);
+        return ret != null && ret == 1;
     }
 }

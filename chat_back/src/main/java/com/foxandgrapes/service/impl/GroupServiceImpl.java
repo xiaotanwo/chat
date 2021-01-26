@@ -1,6 +1,5 @@
 package com.foxandgrapes.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.GroupMapper;
 import com.foxandgrapes.pojo.Group;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * <p>
@@ -34,6 +32,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Transactional
     @Override
     public RespBean newGroup(Group group, HttpServletRequest request) {
+        // 登录验证
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) return RespBean.error("非法访问，请登录！");
 
@@ -56,22 +55,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         return RespBean.success("新建群聊成功！", null);
     }
 
+    // 判断群聊是否已存在
     @Override
     public boolean existGroup(String name) {
-        List<Group> groupList = groupMapper.selectList(new QueryWrapper<Group>().eq("name", name));
-        if (groupList == null || groupList.isEmpty()) {
-            return false;
-        }
-        return true;
+        Group group = getGroupByName(name);
+        return group != null;
     }
 
+    // 通过群聊名称获取群聊
     @Override
     public Group getGroupByName(String name) {
-        List<Group> groupList = groupMapper.selectList(new QueryWrapper<Group>().eq("name", name));
-        if (groupList == null || groupList.isEmpty()) {
-            return null;
-        }
-        return groupList.get(0);
+        return groupMapper.getGroupByName(name);
     }
 
 }

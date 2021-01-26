@@ -9,4 +9,7 @@
         <result column="password" property="password" />
     </resultMap>
 
+    <select id="getGroupByName" resultType="com.foxandgrapes.pojo.Group" parameterType="java.lang.String">
+        select id, name, password from t_group where name = #{name}
+    </select>
 </mapper>
