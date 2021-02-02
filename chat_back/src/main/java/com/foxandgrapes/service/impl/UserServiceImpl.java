@@ -39,8 +39,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return RespBean.error("密码错误！请检查密码是否有误！");
         }
 
-        // 登录成功，在session中保存用户信息
-        request.getSession().setAttribute("user", user);
+        // 登录成功，在session中保存用户名字
+        request.getSession().setAttribute("user", user.getName());
         return RespBean.success("登录成功！", null);
     }
 
@@ -60,8 +60,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 注册
         if (!register(user.getName(), user.getPassword())) return RespBean.error("注册失败！");
 
-        // 注册成功，在session中保存用户信息
-        request.getSession().setAttribute("user", user);
+        // 注册成功，在session中保存用户名字
+        request.getSession().setAttribute("user", user.getName());
         return RespBean.success("注册成功！", null);
     }
 

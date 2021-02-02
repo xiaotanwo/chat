@@ -33,8 +33,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public RespBean newGroup(Group group, HttpServletRequest request) {
         // 登录验证
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) return RespBean.error("非法访问，请登录！");
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
 
         // 参数验证
         if (group == null) return RespBean.error("新建群聊信息不能为空！");
@@ -50,7 +50,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
         // 事务
         groupMapper.insert(group);
-        groupMemberService.joinGroup(group.getName(), user.getName());
+        groupMemberService.joinGroup(group.getName(), userName);
 
         return RespBean.success("新建群聊成功！", null);
     }

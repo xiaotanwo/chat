@@ -3,7 +3,6 @@ package com.foxandgrapes.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.FriendMapper;
 import com.foxandgrapes.pojo.Friend;
-import com.foxandgrapes.pojo.User;
 import com.foxandgrapes.service.IFriendService;
 import com.foxandgrapes.vo.RespBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,29 +28,29 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Override
     public RespBean getFriends(HttpServletRequest request) {
         // 登录验证
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) return RespBean.error("非法访问，请登录！");
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
 
         // 查询好友列表
-        return RespBean.success("查询好友成功！", friendMapper.getFriendList(user.getName()));
+        return RespBean.success("查询好友成功！", friendMapper.getFriendList(userName));
     }
 
     @Transactional
     @Override
     public RespBean delete(String friendName, HttpServletRequest request) {
         // 登录验证
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) return RespBean.error("非法访问，请登录！");
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
 
         // 参数验证
         if (friendName == null) return RespBean.error("好友名不能为空！");
 
         // 判断是否是朋友
-        if (!isFriend(user.getName(), friendName)) return RespBean.error("该用户不是您好友！");
+        if (!isFriend(userName, friendName)) return RespBean.error("该用户不是您好友！");
 
         // 双向删除好友关系，事务
-        deleteFriend(user.getName(), friendName);
-        deleteFriend(friendName, user.getName());
+        deleteFriend(userName, friendName);
+        deleteFriend(friendName, userName);
 
         return RespBean.success("好友删除成功！", null);
     }

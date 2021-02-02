@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.GroupMemberMapper;
 import com.foxandgrapes.pojo.Group;
 import com.foxandgrapes.pojo.GroupMember;
-import com.foxandgrapes.pojo.User;
 import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IGroupService;
 import com.foxandgrapes.vo.RespBean;
@@ -32,8 +31,8 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public RespBean joinGroup(Group group, HttpServletRequest request) {
         // 登录验证
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) return RespBean.error("非法访问，请登录！");
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
 
         // 参数验证
         if (group == null) return RespBean.error("加入的群聊信息不能为空！");
@@ -49,13 +48,13 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
         if (joinGroup == null) return RespBean.error("该群聊不存在!");
 
         // 判断是否已在此群聊中
-        if (inGroup(group.getName(), user.getName())) return RespBean.error("您已在此群聊中，不能重新加入！");
+        if (inGroup(group.getName(), userName)) return RespBean.error("您已在此群聊中，不能重新加入！");
 
         // 判断是否密码正确
         if (!group.getPassword().equals(joinGroup.getPassword())) return RespBean.error("密码不正确！");
 
         // 加入群聊
-        if (!joinGroup(group.getName(), user.getName())) return RespBean.error("加入群聊失败！");
+        if (!joinGroup(group.getName(), userName)) return RespBean.error("加入群聊失败！");
 
         return RespBean.success("加入群聊成功！", null);
     }
@@ -63,10 +62,10 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     @Override
     public RespBean getGroups(HttpServletRequest request) {
         // 登录验证
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) return RespBean.error("非法访问，请登录！");
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
 
-        return RespBean.success("获取群聊信息成功！", groupMemberMapper.getGroups(user.getName()));
+        return RespBean.success("获取群聊信息成功！", groupMemberMapper.getGroups(userName));
     }
 
     // 判断是否在群聊中
