@@ -25,11 +25,6 @@ public class FriendController {
     @Autowired
     private IFriendService friendService;
 
-    @RequestMapping("/getFriends")
-    public RespBean getFriends(HttpServletRequest request) {
-        return friendService.getFriends(request);
-    }
-
     @RequestMapping("/delete/{friendName}")
     public RespBean delete(@PathVariable("friendName") String friendName, HttpServletRequest request) {
         return friendService.delete(friendName, request);

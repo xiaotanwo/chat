@@ -7,10 +7,12 @@ import com.foxandgrapes.pojo.GroupMember;
 import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IGroupService;
 import com.foxandgrapes.vo.RespBean;
+import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
@@ -60,12 +62,12 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
     }
 
     @Override
-    public RespBean getGroups(HttpServletRequest request) {
-        // 登录验证
-        String userName = (String) request.getSession().getAttribute("user");
-        if (userName == null) return RespBean.error("非法访问，请登录！");
+    public void getGroups(String userName) {
 
-        return RespBean.success("获取群聊信息成功！", groupMemberMapper.getGroups(userName));
+        // 获取群聊信息
+        List<String> groupList = groupMemberMapper.getGroups(userName);
+        // 保存群聊信息
+        ChatEndpoint.getAllGroups().put(userName, groupList);
     }
 
     // 判断是否在群聊中

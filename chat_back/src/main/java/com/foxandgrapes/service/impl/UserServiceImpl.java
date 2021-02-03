@@ -3,6 +3,8 @@ package com.foxandgrapes.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.UserMapper;
 import com.foxandgrapes.pojo.User;
+import com.foxandgrapes.service.IFriendService;
+import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IUserService;
 import com.foxandgrapes.utils.MD5Util;
 import com.foxandgrapes.vo.RespBean;
@@ -24,6 +26,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private IFriendService friendService;
+    @Autowired
+    private IGroupMemberService groupMemberService;
 
     @Override
     public RespBean login(User user, HttpServletRequest request) {
@@ -41,7 +47,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 登录成功，在session中保存用户名字
         request.getSession().setAttribute("user", user.getName());
+
+        // 初始化该用户的所有信息
+        init(user.getName());
+
         return RespBean.success("登录成功！", null);
+    }
+
+    private void init(String userName) {
+        // 获取好友并保存
+        friendService.getFriends(userName);
+        // 获取群聊并保存
+        groupMemberService.getGroups(userName);
     }
 
     @Override
@@ -62,6 +79,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 注册成功，在session中保存用户名字
         request.getSession().setAttribute("user", user.getName());
+
+        // 初始化该用户的所有信息
+        init(user.getName());
+
         return RespBean.success("注册成功！", null);
     }
 

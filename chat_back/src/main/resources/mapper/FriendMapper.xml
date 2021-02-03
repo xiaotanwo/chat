@@ -9,7 +9,7 @@
         <result column="friend" property="friend" />
     </resultMap>
 
-    <select id="getFriendList" resultType="com.foxandgrapes.vo.FriendVo" parameterType="java.lang.String">
+    <select id="getFriendList" resultType="java.lang.String" parameterType="java.lang.String">
         select friend from t_friend where name = #{name}
     </select>
 

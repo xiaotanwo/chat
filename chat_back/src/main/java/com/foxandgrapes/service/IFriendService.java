@@ -1,7 +1,7 @@
 package com.foxandgrapes.service;
 
-import com.foxandgrapes.pojo.Friend;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.foxandgrapes.pojo.Friend;
 import com.foxandgrapes.vo.RespBean;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,10 +18,10 @@ public interface IFriendService extends IService<Friend> {
 
     /**
      * 获取所有好友
-     * @param request
+     * @param userName
      * @return
      */
-    RespBean getFriends(HttpServletRequest request);
+    void getFriends(String userName);
 
     /**
      * 删除好友

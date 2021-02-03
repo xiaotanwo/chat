@@ -27,10 +27,10 @@ public interface IGroupMemberService extends IService<GroupMember> {
 
     /**
      * 获取用户所有的群聊
-     * @param request
+     * @param userName
      * @return
      */
-    RespBean getGroups(HttpServletRequest request);
+    void getGroups(String userName);
 
     /**
      * 判断是否在群聊中

@@ -5,11 +5,13 @@ import com.foxandgrapes.mapper.FriendMapper;
 import com.foxandgrapes.pojo.Friend;
 import com.foxandgrapes.service.IFriendService;
 import com.foxandgrapes.vo.RespBean;
+import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
@@ -26,13 +28,12 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     private FriendMapper friendMapper;
 
     @Override
-    public RespBean getFriends(HttpServletRequest request) {
-        // 登录验证
-        String userName = (String) request.getSession().getAttribute("user");
-        if (userName == null) return RespBean.error("非法访问，请登录！");
+    public void getFriends(String userName) {
 
-        // 查询好友列表
-        return RespBean.success("查询好友成功！", friendMapper.getFriendList(userName));
+        // 获取好友信息
+        List<String> friendList = friendMapper.getFriendList(userName);
+        // 保存好友信息
+        ChatEndpoint.getAllFriends().put(userName, friendList);
     }
 
     @Transactional
