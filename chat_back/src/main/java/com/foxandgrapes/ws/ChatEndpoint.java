@@ -31,6 +31,13 @@ public class ChatEndpoint {
     private static Map<String, List<String>> allGroups = new ConcurrentHashMap<>();
     public static Map<String, List<String>> getAllGroups() { return allGroups; }
 
+    // 保存每一个群聊中的在线用户
+    private static Map<String, List<String>> groupOnlineUsers = new ConcurrentHashMap<>();
+    public static Map<String, List<String>> getGroupOnlineUsers() { return groupOnlineUsers; }
+
+    // 聊天室
+    private static String[] chatRoom = new String[] {"北京", "上海", "广州", "深圳"};
+
     // 声明Session对象，通过该对象可以发送消息给指定的用户
     private Session session;
 
@@ -52,48 +59,119 @@ public class ChatEndpoint {
         // 将当前对象存储到容器中
         onlineUsers.put(userName, this);
 
-        Message message = null;
+        // 推送聊天室
+        sendChatRoom();
+        // 推送全部好友信息
+        sendAllFriends(userName);
+        // 推送在线好友信息
+        sendOnlineFriends(userName);
+        // 推送群聊信息
+        sendAllGroup(userName);
+        // 通知好友(上线通知)
+        broadcastOnlineFriends(userName);
+        // 通知群聊（上线通知）
+        broadcastGroups(userName);
+
+    }
+
+    private void sendChatRoom() {
+        Message message = new Message();
+        message.setType(0);
+        message.setObj(chatRoom);
         try {
-            // 推送全部好友信息
-            message = new Message();
-            message.setIsSystem(true);
-            message.setType(2);
-            message.setObj(getFriendVoList(userName));
             session.getBasicRemote().sendText(MessageUtils.getMessage(message));
-
-            // 推送群聊信息
-            message.setType(1);
-            message.setObj(allGroups.get(userName));
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
-
-            // 推送在线好友信息
-            message.setType(3);
-            message.setObj(onlineFriends.get(userName));
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        // sendOnlineFriends();
-        //
-        // broadcastAllFriends();
-        //
-        // broadcastAllGroups();
+    private void broadcastGroups(String userName) {
+        List<String> groups = allGroups.get(userName);
+        Message message = new Message();
+        message.setType(11);
+        message.setFromName(userName);
+        try {
+            for (String group : groups) {
+                // 待续
+                if (!groupOnlineUsers.containsKey(group)) {
+                    groupOnlineUsers.put(group, new ArrayList<>());
+                }
+                List<String> groupUsers = groupOnlineUsers.get(group);
+                for (String user : groupUsers) {
+                    // 不对自己行广播
+                    if (user.equals(userName)) continue;
+                    message.setToName(group);
+                    ChatEndpoint chatEndpoint = onlineUsers.get(user);
+                    chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                }
+                // 添加该用户
+                groupUsers.add(userName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-        // 将当前在线用户的用户名推送给所有的客户端
-        // 1.获取消息
-        // String msg = MessageUtils.getMessage(getNames());
-        // // 2.调用方法进行系统消息的推送
-        // broadcastAllUsers(msg);
+    private void broadcastOnlineFriends(String userName) {
+        List<String> friends = onlineFriends.get(userName);
+        Message message = new Message();
+        message.setType(22);
+        // 上线通知，来自XXX
+        message.setFromName(userName);
+        try {
+            for (String friend : friends) {
+                if (friend.equals(userName)) continue;
+                ChatEndpoint chatEndpoint = onlineUsers.get(friend);
+                chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAllGroup(String userName) {
+        Message message = new Message();
+        message.setType(10);
+        message.setObj(allGroups.get(userName));
+        try {
+            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendOnlineFriends(String userName) {
+        Message message = new Message();
+        message.setType(21);
+        message.setObj(onlineFriends.get(userName));
+        try {
+            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAllFriends(String userName) {
+        Message message = new Message();
+        message.setType(20);
+        message.setObj(getFriendVoList(userName));
+        try {
+            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private List<Object> getFriendVoList(String userName) {
         List<Object> list = new ArrayList<>();
         List<String> onlineFriendList = new ArrayList<>();
         for (String friend : allFriends.get(userName)) {
+            // 好友在线
             if (onlineUsers.containsKey(friend)) {
+                // 添加在线好友
                 onlineFriendList.add(friend);
+                // 添加在线好友的在线好友
+                onlineFriends.get(friend).add(userName);
             }
             list.add(new FriendVo(friend));
         }
@@ -101,24 +179,6 @@ public class ChatEndpoint {
         onlineFriends.put(userName, onlineFriendList);
         return list;
     }
-
-    // private void broadcastAllUsers(String message) {
-    //     try {
-    //         // 要将该消息推送给所有的客户端
-    //         Set<String> names = getNames();
-    //         for (String name : names) {
-    //             ChatEndpoint chatEndpoint = onlineUsers.get(name);
-    //             chatEndpoint.session.getBasicRemote().sendText(message);
-    //         }
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
-    // 获取在线好友,待完善
-    // private Set<String> getNames() {
-    //     return onlineUsers.keySet();
-    // }
 
     @OnMessage
     public void onMessage(String message, Session session) {

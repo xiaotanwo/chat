@@ -13,13 +13,10 @@ import lombok.ToString;
 public class Message {
 
     /**
-     * true: 系统信息，false：聊天信息
-     */
-    private Boolean isSystem;
-
-    /**
-     * 消息的类型：0：聊天室，1：群聊，2：好友，
-     * 系统消息外加类型：3：在线好友
+     * 消息的类型：
+     * 0-9：聊天室，0：聊天室列表，1：聊天信息
+     * 10-19：群聊，10：群聊列表，11：群聊成员上线通知，12：群聊聊天信息
+     * 20-29：好友，20：好友列表，21：在线好友列表，22：好友上线通知，23：好友填料信息
      */
     private Integer type;
 
@@ -34,12 +31,7 @@ public class Message {
     private String toName;
 
     /**
-     * 发送的消息 / 推送的系统信息
-     */
-    private String message;
-
-    /**
-     * 返回的列表（聊天室，群聊，好友）
+     * 携带的信息（消息，好友列表等）
      */
     private Object obj;
 }
