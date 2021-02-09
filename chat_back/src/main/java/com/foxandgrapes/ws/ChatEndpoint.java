@@ -40,6 +40,10 @@ public class ChatEndpoint {
     // 聊天室
     private static String[] chatRooms = new String[] {"北京", "上海", "广州", "深圳"};
 
+    // 保存sessionId对应的用户名
+    private static Map<String, String> sessionIdMapName = new ConcurrentHashMap<>();
+    public static Map<String, String> getSessionIdMapName() { return sessionIdMapName; }
+
     // 声明Session对象，通过该对象可以发送消息给指定的用户
     private Session session;
 
@@ -74,6 +78,8 @@ public class ChatEndpoint {
         // 通知群聊（上线通知）
         broadcastGroups(userName);
 
+        // 保存session对应的用户名
+        sessionIdMapName.put(session.getId(), userName);
     }
 
     private void sendChatRooms() {
@@ -146,6 +152,7 @@ public class ChatEndpoint {
         Message message = new Message();
         message.setType(21);
         message.setObj(onlineFriends.get(userName));
+
         try {
             session.getBasicRemote().sendText(MessageUtils.getMessage(message));
         } catch (Exception e) {
@@ -185,7 +192,7 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
-            String userName = (String) httpSession.getAttribute("user");
+            String userName = getUserName(session);
             ObjectMapper objectMapper = new ObjectMapper();
             Message msg = objectMapper.readValue(message, Message.class);
             msg.setFromName(userName);
@@ -236,12 +243,11 @@ public class ChatEndpoint {
     }
 
     @OnClose
-    public void onClose() {
+    public void onClose(Session session) {
         try {
-            String userName = (String) httpSession.getAttribute("user");
+            String userName = getUserName(session);
             Message message = new Message();
             message.setFromName(userName);
-            ChatEndpoint chatEndpoint = null;
             // 移除对应的好友列表
             allFriends.remove(userName);
             // 移除在线好友的好友，并通知好友
@@ -249,8 +255,7 @@ public class ChatEndpoint {
             for (String friend : friends) {
                 onlineFriends.get(friend).remove(userName);
                 message.setType(25);
-                chatEndpoint = onlineUsers.get(friend);
-                chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                onlineUsers.get(friend).session.getBasicRemote().sendText(MessageUtils.getMessage(message));
             }
             onlineFriends.remove(userName);
             // 并通知群友已下线
@@ -261,8 +266,7 @@ public class ChatEndpoint {
                 List<String> users = groupOnlineUsers.get(group);
                 for (String user : users) {
                     if (user.equals(userName)) continue;
-                    chatEndpoint = onlineUsers.get(user);
-                    chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    onlineUsers.get(user).session.getBasicRemote().sendText(MessageUtils.getMessage(message));
                 }
                 users.remove(userName);
                 if (users.size() == 0) {
@@ -274,8 +278,14 @@ public class ChatEndpoint {
             allGroups.remove(userName);
             // 移除在线用户
             onlineUsers.remove(userName);
+            // 移除sessionId对应的用户名
+            sessionIdMapName.remove(session.getId());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getUserName(Session session) {
+        return sessionIdMapName.get(session.getId());
     }
 }
