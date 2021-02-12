@@ -4,14 +4,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.GroupMemberMapper;
 import com.foxandgrapes.pojo.Group;
 import com.foxandgrapes.pojo.GroupMember;
+import com.foxandgrapes.pojo.Message;
 import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IGroupService;
+import com.foxandgrapes.utils.MessageUtils;
 import com.foxandgrapes.vo.RespBean;
 import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,6 +60,36 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
         // 加入群聊
         if (!joinGroup(group.getName(), userName)) return RespBean.error("加入群聊失败！");
+
+        // 添加该用户的群聊
+        List<String> allGroups = ChatEndpoint.getAllGroups().get(userName);
+        if (allGroups == null) {
+            allGroups = new ArrayList<>();
+            ChatEndpoint.getAllGroups().put(userName, allGroups);
+        }
+        allGroups.add(group.getName());
+
+        // 该群聊通知在线群友并添加该在线用户
+        List<String> groupOnlineUsers =  ChatEndpoint.getGroupOnlineUsers().get(group.getName());
+        if (groupOnlineUsers == null) {
+            groupOnlineUsers = new ArrayList<>();
+            ChatEndpoint.getGroupOnlineUsers().put(group.getName(), groupOnlineUsers);
+        } else {
+            // 通知该群聊正在线的其他用户
+            Message message = new Message();
+            message.setType(14);
+            message.setFromName(userName);
+            message.setToName(group.getName());
+            for (String user : groupOnlineUsers) {
+                ChatEndpoint chatEndpoint = ChatEndpoint.getOnlineUsers().get(user);
+                try {
+                    chatEndpoint.getSession().getBasicRemote().sendText(MessageUtils.getMessage(message));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        groupOnlineUsers.add(userName);
 
         return RespBean.success("加入群聊成功！", null);
     }

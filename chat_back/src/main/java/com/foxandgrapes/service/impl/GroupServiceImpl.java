@@ -3,15 +3,17 @@ package com.foxandgrapes.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.GroupMapper;
 import com.foxandgrapes.pojo.Group;
-import com.foxandgrapes.pojo.User;
 import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IGroupService;
 import com.foxandgrapes.vo.RespBean;
+import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -51,6 +53,20 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         // 事务
         groupMapper.insert(group);
         groupMemberService.joinGroup(group.getName(), userName);
+
+        // 保存新建群聊的相关信息
+        List<String> allGroups = ChatEndpoint.getAllGroups().get(userName);
+        if (allGroups == null) {
+            allGroups = new ArrayList<>();
+            ChatEndpoint.getAllGroups().put(userName, allGroups);
+        }
+        allGroups.add(group.getName());
+        List<String> groupOnlineUsers = ChatEndpoint.getGroupOnlineUsers().get(group.getName());
+        if (groupOnlineUsers == null) {
+            groupOnlineUsers = new ArrayList<>();
+            ChatEndpoint.getGroupOnlineUsers().put(group.getName(), groupOnlineUsers);
+        }
+        groupOnlineUsers.add(userName);
 
         return RespBean.success("新建群聊成功！", null);
     }

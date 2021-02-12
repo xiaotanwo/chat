@@ -46,6 +46,7 @@ public class ChatEndpoint {
 
     // 声明Session对象，通过该对象可以发送消息给指定的用户
     private Session session;
+    public Session getSession() { return session; }
 
     // 声明一个HttpSession对象，用来获取用户名
     private HttpSession httpSession;
