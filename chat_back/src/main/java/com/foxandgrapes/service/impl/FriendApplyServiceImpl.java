@@ -3,15 +3,21 @@ package com.foxandgrapes.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.foxandgrapes.mapper.FriendApplyMapper;
 import com.foxandgrapes.pojo.FriendApply;
+import com.foxandgrapes.pojo.Message;
 import com.foxandgrapes.service.IFriendApplyService;
 import com.foxandgrapes.service.IFriendService;
 import com.foxandgrapes.service.IUserService;
+import com.foxandgrapes.utils.MessageUtils;
 import com.foxandgrapes.vo.RespBean;
+import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -56,6 +62,19 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         // 好友申请
         if (!apply(userName, applyName, friendApply.getMsg())) return RespBean.error("好友申请失败！");
 
+        // 给好友发通知（需在线）
+        ChatEndpoint chatEndpoint = ChatEndpoint.getOnlineUsers().get(applyName);
+        if (chatEndpoint != null) {
+            Message message = new Message();
+            message.setType(26);
+            message.setFromName(userName);
+            message.setObj(friendApply.getMsg());
+            try {
+                chatEndpoint.getSession().getBasicRemote().sendText(MessageUtils.getMessage(message));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return RespBean.success("好友申请成功！", null);
     }
 
@@ -93,6 +112,61 @@ public class FriendApplyServiceImpl extends ServiceImpl<FriendApplyMapper, Frien
         // 双向添加好友，事务
         friendService.insertFriend(userName, name);
         friendService.insertFriend(name, userName);
+
+        // 给好友通知（需在线）
+        ChatEndpoint chatEndpoint = ChatEndpoint.getOnlineUsers().get(name);
+        if (chatEndpoint != null) {
+            Message message = new Message();
+            message.setType(27);
+            message.setFromName(userName);
+            try {
+                chatEndpoint.getSession().getBasicRemote().sendText(MessageUtils.getMessage(message));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // 好友的相关信息保存
+            List<String> allFriendsByName = ChatEndpoint.getAllFriends().get(name);
+            if (allFriendsByName == null) {
+                allFriendsByName = new ArrayList<>();
+                ChatEndpoint.getAllFriends().put(name, allFriendsByName);
+            }
+            allFriendsByName.add(userName);
+
+            // 在线好友的保存（申请方）
+            List<String> onlineFriendsByName = ChatEndpoint.getOnlineFriends().get(name);
+            if (onlineFriendsByName == null) {
+                onlineFriendsByName = new ArrayList<>();
+                ChatEndpoint.getOnlineFriends().put(name, onlineFriendsByName);
+            }
+            onlineFriendsByName.add(userName);
+
+            // 在线好友的保存（通过方）
+            List<String> onlineFriends = ChatEndpoint.getOnlineFriends().get(userName);
+            if (onlineFriends == null) {
+                onlineFriends = new ArrayList<>();
+                ChatEndpoint.getOnlineFriends().put(userName, onlineFriends);
+            }
+            onlineFriends.add(name);
+
+            // 给自己通知，该好友是在线的
+            message.setType(22);
+            message.setObj(null);
+            message.setFromName(name);
+            chatEndpoint = ChatEndpoint.getOnlineUsers().get(userName);
+            try {
+                chatEndpoint.getSession().getBasicRemote().sendText(MessageUtils.getMessage(message));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 保存好友的相关信息
+        List<String> allFriends = ChatEndpoint.getAllFriends().get(userName);
+        if (allFriends == null) {
+            allFriends = new ArrayList<>();
+            ChatEndpoint.getAllFriends().put(userName, allFriends);
+        }
+        allFriends.add(name);
 
         return RespBean.success("好友申请同意成功！", null);
     }

@@ -40,10 +40,6 @@ public class ChatEndpoint {
     // 聊天室
     private static String[] chatRooms = new String[] {"北京", "上海", "广州", "深圳"};
 
-    // 保存sessionId对应的用户名
-    private static Map<String, String> sessionIdMapName = new ConcurrentHashMap<>();
-    public static Map<String, String> getSessionIdMapName() { return sessionIdMapName; }
-
     // 声明Session对象，通过该对象可以发送消息给指定的用户
     private Session session;
     public Session getSession() { return session; }
@@ -79,8 +75,6 @@ public class ChatEndpoint {
         // 通知群聊（上线通知）
         broadcastGroups(userName);
 
-        // 保存session对应的用户名
-        sessionIdMapName.put(session.getId(), userName);
     }
 
     private void sendChatRooms() {
@@ -193,7 +187,7 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
-            String userName = getUserName(session);
+            String userName = (String) httpSession.getAttribute("user");
             ObjectMapper objectMapper = new ObjectMapper();
             Message msg = objectMapper.readValue(message, Message.class);
             msg.setFromName(userName);
@@ -244,9 +238,9 @@ public class ChatEndpoint {
     }
 
     @OnClose
-    public void onClose(Session session) {
+    public void onClose() {
         try {
-            String userName = getUserName(session);
+            String userName = (String) httpSession.getAttribute("user");
             Message message = new Message();
             message.setFromName(userName);
             // 移除对应的好友列表
@@ -279,14 +273,8 @@ public class ChatEndpoint {
             allGroups.remove(userName);
             // 移除在线用户
             onlineUsers.remove(userName);
-            // 移除sessionId对应的用户名
-            sessionIdMapName.remove(session.getId());
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private String getUserName(Session session) {
-        return sessionIdMapName.get(session.getId());
     }
 }
