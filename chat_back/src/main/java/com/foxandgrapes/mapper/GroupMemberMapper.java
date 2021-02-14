@@ -20,4 +20,7 @@ public interface GroupMemberMapper extends BaseMapper<GroupMember> {
 
     // 判断是否在群聊中
     Integer inGroup(String groupName, String name);
+
+    // 删除群聊
+    Integer deleteGroup(String groupName, String name);
 }

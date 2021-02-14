@@ -17,4 +17,7 @@
         select 1 from t_group_member where group_name = #{groupName} and member_name = #{name} limit 1
     </select>
 
+    <delete id="deleteGroup" parameterType="java.lang.String">
+        delete from t_group_member where group_name = #{groupName} and member_name = #{name} limit 1
+    </delete>
 </mapper>

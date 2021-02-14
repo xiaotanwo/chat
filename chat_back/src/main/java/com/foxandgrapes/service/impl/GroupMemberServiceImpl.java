@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,5 +121,47 @@ public class GroupMemberServiceImpl extends ServiceImpl<GroupMemberMapper, Group
 
         Integer ret = groupMemberMapper.insert(groupMember);
         return ret != null && ret == 1;
+    }
+
+    @Override
+    public RespBean delete(String groupName, HttpServletRequest request) {
+        // 登录验证
+        String userName = (String) request.getSession().getAttribute("user");
+        if (userName == null) return RespBean.error("非法访问，请登录！");
+
+        // 参数验证
+        if (groupName == null) return RespBean.error("群聊名不能为空！");
+
+        // 判断是否是群友
+        if (!inGroup(groupName, userName)) return RespBean.error("您不在该群聊中，不能删除！");
+
+        // 删除群聊
+        groupMemberMapper.deleteGroup(groupName, userName);
+
+        // 自己删除群聊的信息
+        List<String> allGroups = ChatEndpoint.getAllGroups().get(userName);
+        allGroups.remove(groupName);
+
+        // 通知群友自己离群的信息（需在线）
+        List<String> allUsers = ChatEndpoint.getGroupOnlineUsers().get(groupName);
+        Message message = new Message();
+        message.setType(15);
+        message.setFromName(userName);
+        message.setToName(groupName);
+        for (String user : allUsers) {
+            if (userName.equals(user)) continue;
+
+            ChatEndpoint chatEndpoint = ChatEndpoint.getOnlineUsers().get(user);
+            try {
+                chatEndpoint.getSession().getBasicRemote().sendText(MessageUtils.getMessage(message));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        allUsers.remove(userName);
+        if (allUsers.size() == 0) ChatEndpoint.getGroupOnlineUsers().remove(groupName);
+
+        return RespBean.success("群聊删除成功！", null);
     }
 }

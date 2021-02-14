@@ -47,4 +47,12 @@ public interface IGroupMemberService extends IService<GroupMember> {
      * @return
      */
     boolean joinGroup(String groupName, String memberName);
+
+    /**
+     * 删除群聊
+     * @param groupName
+     * @param request
+     * @return
+     */
+    RespBean delete(String groupName, HttpServletRequest request);
 }

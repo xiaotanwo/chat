@@ -28,4 +28,9 @@ public class GroupMemberController {
     public RespBean joinGroup(@RequestBody Group group, HttpServletRequest request) {
         return groupMemberService.joinGroup(group, request);
     }
+
+    @RequestMapping("/delete/{groupName}")
+    public RespBean delete(@PathVariable("groupName") String groupName, HttpServletRequest request) {
+        return groupMemberService.delete(groupName, request);
+    }
 }
