@@ -57,7 +57,10 @@ public class ChatEndpoint {
         // 获取用户名
         String userName = (String) httpSession.getAttribute("user");
         // 没登录则直接返回
-        if (userName == null) return;
+        if (userName == null) {
+            onClose();
+            return;
+        }
 
         // 将当前对象存储到容器中
         onlineUsers.put(userName, this);
@@ -187,6 +190,11 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
+            // 心跳
+            if ("ping".equals(message)) {
+                session.getBasicRemote().sendText("pang");
+                return;
+            }
             String userName = (String) httpSession.getAttribute("user");
             ObjectMapper objectMapper = new ObjectMapper();
             Message msg = objectMapper.readValue(message, Message.class);
@@ -241,6 +249,7 @@ public class ChatEndpoint {
     public void onClose() {
         try {
             String userName = (String) httpSession.getAttribute("user");
+            if (userName == null) return;
             Message message = new Message();
             message.setFromName(userName);
             // 移除对应的好友列表
