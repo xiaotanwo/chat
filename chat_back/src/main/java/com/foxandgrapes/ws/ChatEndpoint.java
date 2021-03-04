@@ -252,8 +252,7 @@ public class ChatEndpoint {
             if (userName == null) return;
             Message message = new Message();
             message.setFromName(userName);
-            // 移除对应的好友列表
-            allFriends.remove(userName);
+
             // 移除在线好友的好友，并通知好友
             List<String> friends =  onlineFriends.get(userName);
             for (String friend : friends) {
@@ -278,8 +277,7 @@ public class ChatEndpoint {
                     groupOnlineUsers.remove(group);
                 }
             }
-            // 移除对应的群聊列表
-            allGroups.remove(userName);
+
             // 移除在线用户
             onlineUsers.remove(userName);
         } catch (Exception e) {

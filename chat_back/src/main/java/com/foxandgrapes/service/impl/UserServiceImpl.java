@@ -8,6 +8,7 @@ import com.foxandgrapes.service.IGroupMemberService;
 import com.foxandgrapes.service.IUserService;
 import com.foxandgrapes.utils.MD5Util;
 import com.foxandgrapes.vo.RespBean;
+import com.foxandgrapes.ws.ChatEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +89,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public RespBean logout(HttpServletRequest request) {
+        String userName = (String) request.getSession().getAttribute("user");
         request.getSession().removeAttribute("user");
+        // 移除对应的好友列表
+        ChatEndpoint.getAllFriends().remove(userName);
+        // 移除对应的群聊列表
+        ChatEndpoint.getAllGroups().remove(userName);
         return RespBean.success("退出成功！", null);
     }
 
