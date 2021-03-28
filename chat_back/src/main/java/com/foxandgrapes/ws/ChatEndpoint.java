@@ -200,8 +200,8 @@ public class ChatEndpoint {
             Message msg = objectMapper.readValue(message, Message.class);
             msg.setFromName(userName);
             switch (msg.getType()) {
+                // 聊天室消息
                 case 0:
-                    // 聊天室消息
                     for (String chatRoom : chatRooms) {
                         if (chatRoom.equals(msg.getToName())) {
                             msg.setType(1);
@@ -215,8 +215,8 @@ public class ChatEndpoint {
                         }
                     }
                     break;
+                // 群聊消息
                 case 1:
-                    // 群聊消息
                     msg.setType(12);
                     if (groupOnlineUsers.containsKey(msg.getToName())) {
                         for (String user : groupOnlineUsers.get(msg.getToName())) {
@@ -226,8 +226,8 @@ public class ChatEndpoint {
                         }
                     }
                     break;
+                // 好友消息
                 case 2:
-                    // 好友消息
                     if (onlineFriends.get(userName).contains(msg.getToName())) {
                         // 在线
                         msg.setType(23);
