@@ -8,6 +8,6 @@ public class UpdateSession {
 
     @GetMapping("updateSession")
     public void updateSession() {
-        // 更新session的作用
+        // 更新session的作用，无需处理
     }
 }

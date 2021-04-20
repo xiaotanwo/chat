@@ -85,7 +85,9 @@ public class ChatEndpoint {
         message.setType(0);
         message.setObj(chatRooms);
         try {
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            if (session != null) {
+                session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,7 +110,9 @@ public class ChatEndpoint {
                     if (user.equals(userName)) continue;
                     message.setToName(group);
                     ChatEndpoint chatEndpoint = onlineUsers.get(user);
-                    chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    if (chatEndpoint != null) {
+                        chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    }
                 }
                 // 添加该用户
                 groupUsers.add(userName);
@@ -128,7 +132,9 @@ public class ChatEndpoint {
             for (String friend : friends) {
                 if (friend.equals(userName)) continue;
                 ChatEndpoint chatEndpoint = onlineUsers.get(friend);
-                chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                if (chatEndpoint != null) {
+                    chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,7 +146,9 @@ public class ChatEndpoint {
         message.setType(10);
         message.setObj(allGroups.get(userName));
         try {
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            if (session != null) {
+                session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,7 +160,9 @@ public class ChatEndpoint {
         message.setObj(onlineFriends.get(userName));
 
         try {
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            if (session != null) {
+                session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -163,7 +173,9 @@ public class ChatEndpoint {
         message.setType(20);
         message.setObj(getFriendVoList(userName));
         try {
-            session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            if (session != null) {
+                session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,7 +204,9 @@ public class ChatEndpoint {
         try {
             // 心跳
             if ("ping".equals(message)) {
-                session.getBasicRemote().sendText("pang");
+                if (session != null) {
+                    session.getBasicRemote().sendText("pang");
+                }
                 return;
             }
             String userName = (String) httpSession.getAttribute("user");
@@ -208,7 +222,10 @@ public class ChatEndpoint {
                             for (Map.Entry<String, ChatEndpoint> entry : onlineUsers.entrySet()) {
                                 // 不对自己进行广播
                                 if (!userName.equals(entry.getKey())) {
-                                    entry.getValue().session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                                    ChatEndpoint ce = entry.getValue();
+                                    if (ce != null) {
+                                        ce.session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                                    }
                                 }
                             }
                             break;
@@ -221,7 +238,10 @@ public class ChatEndpoint {
                     if (groupOnlineUsers.containsKey(msg.getToName())) {
                         for (String user : groupOnlineUsers.get(msg.getToName())) {
                             if (!userName.equals(user)) {
-                                onlineUsers.get(user).session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                                ChatEndpoint ce = onlineUsers.get(user);
+                                if (ce != null) {
+                                    ce.session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                                }
                             }
                         }
                     }
@@ -232,11 +252,15 @@ public class ChatEndpoint {
                         // 在线
                         msg.setType(23);
                         ChatEndpoint chatEndpoint = onlineUsers.get(msg.getToName());
-                        chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                        if (chatEndpoint != null) {
+                            chatEndpoint.session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                        }
                     } else {
                         // 已离线
                         msg.setType(24);
-                        session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                        if (session != null) {
+                            session.getBasicRemote().sendText(MessageUtils.getMessage(msg));
+                        }
                     }
                     break;
             }
@@ -258,7 +282,10 @@ public class ChatEndpoint {
             for (String friend : friends) {
                 onlineFriends.get(friend).remove(userName);
                 message.setType(25);
-                onlineUsers.get(friend).session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                ChatEndpoint ce = onlineUsers.get(friend);
+                if (ce != null) {
+                    session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                }
             }
             onlineFriends.remove(userName);
             // 并通知群友已下线
@@ -269,7 +296,10 @@ public class ChatEndpoint {
                 List<String> users = groupOnlineUsers.get(group);
                 for (String user : users) {
                     if (user.equals(userName)) continue;
-                    onlineUsers.get(user).session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    ChatEndpoint ce = onlineUsers.get(user);
+                    if (ce != null) {
+                        ce.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    }
                 }
                 users.remove(userName);
                 if (users.size() == 0) {
