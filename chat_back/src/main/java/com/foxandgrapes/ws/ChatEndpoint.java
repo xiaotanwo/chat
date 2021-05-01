@@ -284,7 +284,7 @@ public class ChatEndpoint {
                 message.setType(25);
                 ChatEndpoint ce = onlineUsers.get(friend);
                 if (ce != null) {
-                    session.getBasicRemote().sendText(MessageUtils.getMessage(message));
+                    ce.session.getBasicRemote().sendText(MessageUtils.getMessage(message));
                 }
             }
             onlineFriends.remove(userName);
