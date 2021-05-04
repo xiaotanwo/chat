@@ -5,8 +5,8 @@ import com.foxandgrapes.service.IPictureService;
 import com.foxandgrapes.utils.MessageUtils;
 import com.foxandgrapes.vo.RespBean;
 import com.foxandgrapes.ws.ChatEndpoint;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,9 +29,14 @@ public class PictureServiceImpl implements IPictureService {
             return RespBean.error("请选择发送对象！");
         }
 
-        String staticPath = ClassUtils.getDefaultClassLoader().getResource("static").getPath() + "/img";
+        // IDEA运行时的路径
+        // String staticPath = ClassUtils.getDefaultClassLoader().getResource("static").getPath() + "/img";
+        // 打包成jar时的路径
+        ApplicationHome h = new ApplicationHome(getClass());
+        File jarF = h.getSource();
+        String staticPath = jarF.getParentFile() + "/img";
 
-        //获取文件在服务器的储存位置
+        // 获取文件在服务器的储存位置
         File filePath = new File(staticPath);
         if(!filePath.exists() && !filePath.isDirectory()){
             System.out.println("目录不存在，创建目录：" + filePath);
